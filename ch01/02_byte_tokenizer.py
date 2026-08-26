@@ -1,3 +1,6 @@
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 # 'A' の場合
 encoded = 'A'.encode("utf-8")
 print(encoded)        # b'A'
