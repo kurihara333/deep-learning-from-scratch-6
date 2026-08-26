@@ -1,3 +1,6 @@
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 text = "hello世界😁"
 print(list(text))  # ['h', 'e', 'l', 'l', 'o', '世', '界', '😁']
 
