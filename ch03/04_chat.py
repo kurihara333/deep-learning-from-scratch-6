@@ -21,15 +21,26 @@ def format_prompt(user_message):
 tokenizer = BPETokenizer.load_from(tokenizer_path)
 model = GPT.load_from(model_path, device=device)
 
+print("使用デバイス:", device)
+print("使用モデル:", model_path)
+print(f"モデルパラメータ数: {sum(p.numel() for p in model.parameters()):,}")
+
 while True:
-    user_input = input("\nYou: ").strip()
+    try:
+        user_input = input("\nYou: ").strip()
+    except EOFError:
+        print("\n(入力終了)")
+        break
 
     if not user_input:
         continue
 
     # プロンプトのフォーマットと生成
     prompt = format_prompt(user_input)
+    print(f"\n--- モデルに渡す実際のプロンプト ---\n{prompt!r}")
+
     response = generate(model, tokenizer, prompt, max_new_tokens, temperature)
+    print(f"\n--- 生成された生テキスト(抽出前) ---\n{response!r}")
 
     # アシスタントの応答部分のみ抽出
     if "### Response:" in response:
