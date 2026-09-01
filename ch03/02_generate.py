@@ -61,6 +61,26 @@ def generate(model, tokenizer, prompt, max_new_tokens=1000, temperature=1.0):
 tokenizer = BPETokenizer.load_from(tokenizer_path)
 model = GPT.load_from(model_path, device=device)
 
+print("使用デバイス:", device)
+print("語彙サイズ:", tokenizer.vocab_size)
+print(f"モデルパラメータ数: {sum(p.numel() for p in model.parameters()):,}")
+
+encoded_prompt = tokenizer.encode(prompt)
+print(f"\nプロンプト '{prompt}' → トークンID: {encoded_prompt}")
+
+# 1トークンずつ生成される様子を可視化(最初の8トークンだけ)
+print("\n--- 1トークンずつ生成される様子(先頭8トークン) ---")
+demo_ids = torch.tensor([encoded_prompt], dtype=torch.long, device=device)
+with torch.no_grad():
+    for step in range(8):
+        logits = model(demo_ids)[:, -1, :]
+        probs = F.softmax(logits / temperature, dim=-1)
+        next_id = torch.multinomial(probs, num_samples=1)
+        top_prob = probs[0, next_id.item()].item()
+        demo_ids = torch.cat((demo_ids, next_id), dim=1)
+        so_far = tokenizer.decode(demo_ids[0].tolist())
+        print(f"  step {step+1}: 選ばれたID={next_id.item()} (確率{top_prob*100:.1f}%) → ここまでの生成結果: {so_far!r}")
+
 # テキスト生成
 for i in range(5):
     print(f"--- サンプル {i+1} ---")
