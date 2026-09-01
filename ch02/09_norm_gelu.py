@@ -57,3 +57,24 @@ class Block(nn.Module):
         x = x + self.attn(self.norm1(x))
         x = x + self.ffn(self.norm2(x))
         return x
+
+
+# 使用例
+embed_dim = 16
+n_head = 4
+block = Block(embed_dim, n_head)
+
+# わざと平均・分散が偏ったダミー入力を作る
+x = torch.randn(2, 5, embed_dim) * 10 + 3
+print("LayerNorm前の平均・分散(トークンごと、バッチ0):")
+print("  平均:", x[0].mean(dim=-1))
+print("  分散:", x[0].var(dim=-1, unbiased=False))
+
+normed = block.norm1(x)
+print("\nLayerNorm後の平均・分散(トークンごと、バッチ0):")
+print("  平均:", normed[0].mean(dim=-1))
+print("  分散:", normed[0].var(dim=-1, unbiased=False))
+
+output = block(x)
+print("\n入力形状:", x.shape)
+print("出力形状:", output.shape, "(Block内部でAttention+FFNを通っても形状は変わらない)")
