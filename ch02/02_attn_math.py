@@ -32,7 +32,11 @@ Q = torch.tensor([
 
 def attention(Q, K, V):
     similarity = torch.matmul(Q, K.t())     # QK^Tを計算
+    print("類似度(QK^T、内積そのまま):\n", similarity)
+
     weights = F.softmax(similarity, dim=1)  # ソフトマックス関数
+    print("\nsoftmax後の重み:\n", weights)
+
     output = torch.matmul(weights, V)       # 重み付き和
     return output, weights
 

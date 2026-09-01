@@ -25,8 +25,14 @@ class Attention(nn.Module):
         # マスクの適用
         B, C, E = x.shape
         mask = torch.tril(torch.ones(C, C, device=scores.device))
+        print("マスク行列(1=見てよい, 0=見せない):\n", mask)
+
+        print("\nマスク適用前のscores(バッチ0):\n", scores[0])
         scores = scores.masked_fill(mask == 0, float('-inf'))
+        print("\nマスク適用後のscores(バッチ0、-infが未来のトークン):\n", scores[0])
+
         weights = F.softmax(scores, dim=-1)
+        print("\nsoftmax後のweights(バッチ0、各行の合計=1):\n", weights[0])
 
         output = torch.matmul(weights, V)  # (B, C, E)
         return output

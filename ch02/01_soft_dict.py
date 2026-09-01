@@ -35,9 +35,13 @@ def soft_dictionary(query, dictionary):
         s = np.dot(query, key)
         similarity.append(s)
 
+    print("類似度(内積そのまま):", similarity)
+
     # ソフトマックス
     exp_similarity = np.exp(similarity)
     weights = exp_similarity / np.sum(exp_similarity)
+
+    print("softmax後の重み:", weights)
 
     # 重み付き和
     result = 0

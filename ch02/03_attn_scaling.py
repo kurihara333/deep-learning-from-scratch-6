@@ -47,3 +47,16 @@ plt.show()
 
 print("Variances without scaling:", np.var(dot_products))
 print("Variances with scaling:", np.var(scaled_dot_products))
+
+
+# スケーリングの有無で、実際にsoftmaxの出力がどう変わるかを確認
+def softmax(x):
+    e = np.exp(x - np.max(x))
+    return e / np.sum(e)
+
+sample_raw = np.array(dot_products[:5])
+sample_scaled = np.array(scaled_dot_products[:5])
+
+print("\nサンプル5件の生スコア:", sample_raw)
+print("スケーリングなしのsoftmax:", softmax(sample_raw))
+print("スケーリングありのsoftmax:", softmax(sample_scaled))

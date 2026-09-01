@@ -19,11 +19,13 @@ W_v = nn.Linear(E, H*D, bias=False)
 Q = W_q(x)  # (B, C, H*D)
 K = W_k(x)  # (B, C, H*D)
 V = W_v(x)  # (B, C, H*D)
+print("分割前のQ形状:", Q.shape, "(バッチ, 系列長, ヘッド数*ヘッド次元)")
 
 # 形状の変換
 Q = Q.view(B, C, H, D).transpose(1, 2)  # (B, H, C, D)
 K = K.view(B, C, H, D).transpose(1, 2)  # (B, H, C, D)
 V = V.view(B, C, H, D).transpose(1, 2)  # (B, H, C, D)
+print("分割後のQ形状:", Q.shape, "(バッチ, ヘッド数, 系列長, ヘッド次元)")
 
 scores = torch.matmul(Q, K.transpose(-2, -1))  # (B, H, C, C)
 scores = scores / (D ** 0.5)
@@ -34,15 +36,21 @@ scores = scores.masked_fill(mask == 0, float('-inf'))
 
 # Attention重み
 weights = F.softmax(scores, dim=-1)  # (B, H, C, C)
+print("\nweights形状:", weights.shape, "(バッチ, ヘッド数, 系列長, 系列長)")
+print("ヘッド0の重み(バッチ0):\n", weights[0, 0])
+print("ヘッド1の重み(バッチ0、ヘッド0と別パターンになる):\n", weights[0, 1])
+
 hidden = torch.matmul(weights, V)   # (B, H, C, D)
 
 # 形状変換: (B, H, C, D) → (B, C, H*D)
 hidden = hidden.transpose(1, 2)  # (B, C, H, D)
 hidden = hidden.contiguous().view(B, C, H*D)  # (B, C, H*D)
+print("\n結合後のhidden形状:", hidden.shape, "(バッチ, 系列長, ヘッド数*ヘッド次元)")
 
 # 出力変換: (B, C, H*D) → (B, C, E)
 W_o = nn.Linear(H*D, E, bias=False)
 output = W_o(hidden)  # (B, C, E)
+print("W_o適用後のoutput形状:", output.shape, "(embed_dimに戻った)")
 
 
 class MultiHeadAttention(nn.Module):

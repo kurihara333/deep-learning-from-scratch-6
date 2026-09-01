@@ -25,10 +25,16 @@ class Attention(nn.Module):
         scores = scores.masked_fill(mask == 0, float('-inf'))
 
         weights = F.softmax(scores, dim=-1)
+        print("weights形状:", weights.shape, "(バッチ, 系列長, 系列長)")
+        print("weights(バッチ0):\n", weights[0])
+
         hidden = torch.matmul(weights, V)
+        print("\nV形状:", V.shape, "(バッチ, 系列長, key_dim)")
+        print("hidden = weights @ V の形状:", hidden.shape, "(まだkey_dim次元)")
 
         # 出力変換
         output = self.W_o(hidden)
+        print("\nW_oで出力変換後の形状:", output.shape, "(embed_dimに戻った)")
 
         return output
 
