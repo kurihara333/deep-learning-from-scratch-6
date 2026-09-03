@@ -111,7 +111,21 @@ dropout_rate = 0.1
 model = GPT(vocab_size, max_context_len, embed_dim, n_head,
              n_layer, ff_dim, dropout_rate)
 
+# 埋め込みテーブルの中身を確認
+print("embedのテーブル形状:", model.embed.weight.shape, "(vocab_size, embed_dim) = 語彙1000個 × 384次元")
+print("pos_embedのテーブル形状:", model.pos_embed.weight.shape, "(max_context_len, embed_dim) = 位置256個 × 384次元")
+
+sample_ids = torch.tensor([5, 5, 42])
+sample_emb = model.embed(sample_ids)
+print("\nトークンID [5, 5, 42] を埋め込んだ結果の形状:", sample_emb.shape, "(3個のID → 384次元ベクトルが3本)")
+print("ID=5の最初の5次元:      ", sample_emb[0, :5])
+print("ID=5の最初の5次元(2回目):", sample_emb[1, :5], " ← 同じIDなら常に同じベクトル(テーブル参照のため)")
+print("ID=42の最初の5次元:     ", sample_emb[2, :5], " ← 違うIDなら違うベクトル")
+
+print("\nembedとunembedが同じ重みを共有しているか:", model.embed.weight is model.unembed.weight)
+
 # 動作テスト
 dummy_input = torch.randint(0, vocab_size, (1, max_context_len))
+print(f"\nダミー入力(トークンID列)の形状: {dummy_input.shape}")
 logits = model(dummy_input)
-print(f"出力形状: {logits.shape}")
+print(f"出力形状: {logits.shape}", "(各位置ごとに、語彙1000個それぞれのスコア)")
